@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 
 import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
+import App from "./App";
 import { NextUIProvider } from '@nextui-org/react';
 
 import '@rainbow-me/rainbowkit/styles.css'
@@ -24,7 +25,7 @@ import { publicProvider } from 'wagmi/providers/public';
 
 
 const { chains, provider } = configureChains(
-    [chain.goerli],
+    [chain.mainnet],
     [
       alchemyProvider({ alchemyId: process.env.ALCHEMY_ID }),
       publicProvider()
@@ -50,8 +51,7 @@ root.render(
   <RainbowKitProvider chains={chains} theme={darkTheme()}>
     <NextUIProvider>
         <div>
-          <Navbar />
-          <Home />
+          <App />
         </div>
       </NextUIProvider>
   </RainbowKitProvider>

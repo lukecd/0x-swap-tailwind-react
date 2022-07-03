@@ -15,20 +15,18 @@ const TokenList = (props) => {
     const [selected, setSelected] = useState("");
     
     const closeDialog = () => {
-        console.log("selected", selected);
         props.onClose(false);
     }
 
     const handleChange = (event) => {
-        console.log("id ", event.target.id);
-        console.log("name ", event.target.title);
+
         props.setTokenAddress(event.target.id);
         props.setTokenName(event.target.title);
         props.onClose(false);
         
     }
 
-    // runs on pae load.
+    // runs on page load.
     useEffect(() => {
         const populateForm = async () => {
             await queryCG()
@@ -39,6 +37,9 @@ const TokenList = (props) => {
         
     }, []);
 
+    /**
+     * Gets a list of tokens for the popup
+     */
     const queryCG = async () => {
         const queryURL = 'https://gateway.ipfs.io/ipns/tokens.uniswap.org'
 
@@ -46,7 +47,6 @@ const TokenList = (props) => {
         let tokens = await response.json();
         tokens = tokens.tokens;
         setTokens(tokens);
-        console.log("set tokens ", tokens);
     }
     
     return (
@@ -83,7 +83,7 @@ const TokenList = (props) => {
                     {tokens.map((token, i) => (
                         <Table.Row key={token.address} >
                         <Table.Cell >
-                            <img src={token.logoURI} /> 
+                            <img src={token.logoURI} width='18' alt='token icon'/> 
                         </Table.Cell>
                         <Table.Cell>
                             <span id={token.address} title={token.name} onClick={handleChange}>{token.name}</span>
