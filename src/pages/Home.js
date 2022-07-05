@@ -3,6 +3,7 @@ import { useBalance, useAccount, useContract, useContractEvent, useProvider, use
 import React, { useEffect, useState } from 'react'
 import TokenList from '../components/TokenList'
 import * as qs from 'qs'
+import About from '../components/About'
 /**
  * 
  * @returns
@@ -37,12 +38,33 @@ const Home = () => {
         setTokenList1Open(true);
     }
 
-    const set50 = () => {
+    const setPercentOfOwned = (percent) => {
 
     }
 
-    const swap = () => {
-        console.log('swap')
+    /**
+     * This is for testing purpsoes. Normally we start and stop the wave animation
+     * to indicate a transaction is processing, but since I want people to be able to see 
+     * things without spending ETH, let's do it this way.
+     */
+    const slowDownWaves = () => {
+        let toDecriment = window.$wave_speed / 10;
+        for(let i=0; i<10; i++) {
+            // create a slight speed-ramp down to the slow down isn't visually jarring
+            setTimeout(() => {  window.$wave_speed -= toDecriment; }, 400);
+        }
+    }
+
+    /**
+     * This is for testing purpsoes. Normally we start and stop the wave animation
+     * to indicate a transaction is processing, but since I want people to be able to see 
+     * things without spending ETH, let's do it this way.
+     */
+    const speedUpWaves = () => {
+        // window.$wave_speed *= 10; 
+        let curSpeed = window.$wave_speed;
+        // just fyi, no speed ramp here as it just doesn't seem necessary
+        for(let i=0; i<10; i++) window.$wave_speed += curSpeed;
     }
 
     /**
@@ -107,11 +129,6 @@ const Home = () => {
             takerAddress: signer._address // logged in address with MetaMask
         }
 
-console.log("token0Address ", token0Address);
-console.log("token1Address ", token1Address);
-console.log("amount.toString() ", amount.toString());
-console.log("signer._address ", signer._address);
-
         // fetch the swap price and gas price
         const response = await fetch(`https://api.0x.org/swap/v1/quote?${qs.stringify(params)}`);
         let swapQuoteJSON = await response.json();
@@ -119,6 +136,9 @@ console.log("signer._address ", signer._address);
     }
 
     const trySwap = async () => {
+        // start the animation
+        speedUpWaves();
+
         // if user puts in number of tokens before chossing tokens, don't wate time computing
         if( !token0Address || !token1Address) {
             // TODO ERROR
@@ -145,16 +165,20 @@ console.log("signer._address ", signer._address);
         const amountToApprove = ethers.constants.MaxUint256;
 
         let tx = await contract.connect(signer).approve(allowanceTarget, amountToApprove)
-        .then( console.log("success ", tx))
-        .catch(console.log("success ", tx));
+        .then( console.log("success "))
+        .catch(console.log("success "));
 
         const swapQuoteJSON = await getQuote();
         console.log("swapQuoteJSON ", swapQuoteJSON);
 
         // now swap
         tx = await signer.sendTransaction(swapQuoteJSON)
-        .then( console.log("success ", tx))
-        .catch(console.log("success ", tx));   
+        .then( console.log("success "))
+        .catch(console.log("success "));   
+
+        // start the animation
+        // but probably I have to listed for an event letting me know the transaction is done?
+        //stopWaves();
     }
 
     return (
@@ -195,7 +219,7 @@ console.log("signer._address ", signer._address);
                                onBlur={getPrice}> 
                         </input>
                         <span className='text-sm font-semibold text-text'>Balance: {token0Balance}</span>
-                        <span className='justify-end text-sm font-semibold text-[#f5ead9]'>Use: <a className="underline" onClick={set50}>50%</a> | <a className="underline" onClick={set50}>100%</a></span>
+                        <span className='justify-end text-sm font-semibold text-[#f5ead9]'>Use: <a className="underline" onClick={setPercentOfOwned(50)}>50%</a> | <a className="underline" onClick={setPercentOfOwned(100)}>100%</a></span>
                     </div>
                 </div>
                 <div className='flex flex-row justify-between bg-secondary drop-shadow-2xl shadow-wave1 border-8 border-wave2 p-1 rounded-lg border-spacing-1 mt-5'>
@@ -225,9 +249,13 @@ console.log("signer._address ", signer._address);
                     </button>
                     <span className='flex flex-row justify-end text-sm font-semibold mt-3'>Gas: {gasPrice}</span>
                     <span className='flex flex-row justify-end text-sm font-semibold'>Swap Fee: {swapFee} </span>
+                    <a href="#" onClick={slowDownWaves} className='flex flex-row justify-end text-sm font-semibold'>Slow Waves (for testing purposes) </a>
                 </div>
             </div>
     
+            </div>
+            <div className>
+                   <About />                
             </div>
         </div>
         </>
